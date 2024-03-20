@@ -29,6 +29,25 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
+				<configuration>
+					<classifier>mule-application</classifier>
+					<cloudHubDeployment>
+						<uri>https://anypoint.mulesoft.com</uri>
+						<muleVersion>${app.runtime}</muleVersion>
+						<username>${anypoint.username}</username>
+						<password>${anypoint.password}</password>
+						<applicationName>${app.name}</applicationName>
+						<environment>DEV</environment>
+						<workerType>MICRO</workerType>
+						<region>us-east-2</region>
+						<workers>1</workers>
+						<objectStoreV2>true</objectStoreV2>
+						<properties>
+							<anypoint.platform.config.analytics.agent.enabled>true</anypoint.platform.config.analytics.agent.enabled>
+							<decryption.key>${decryption.key}</decryption.key>
+						</properties>
+					</cloudHubDeployment>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
