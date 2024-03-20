@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_11d4d7de_536a_4a96_8ce7_dd71510b6b72_Output_Variables_storeyResult = Any
+

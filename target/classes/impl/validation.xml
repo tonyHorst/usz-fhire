@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="validationSub_Flow" doc:id="11d4d7de-536a-4a96-8ce7-dd71510b6b72" >
+		<flow-ref doc:name="call_validation_api" doc:id="4a9b382f-a316-4cd9-bec8-eeeeaa8a8bfc" name="call_validation_api" targetValue="#[vars.inputVar]"/>
+		<choice doc:name="Choice" doc:id="e39d8398-3ee0-42f0-bab6-dd53a152c1f7" >
+			<when expression='#[vars.responseType == "JSON"]'>
+				<ee:transform doc:name="Transform result as JSON" doc:id="873a0c32-9840-4157-96c1-4a6eace44b2f">
+			<ee:message>
+			</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="response" ><![CDATA[%dw 2.0
+output application/java
+---
+read(payload, "application/json")]]></ee:set-variable>
+					</ee:variables>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform result as XML" doc:id="5c2adbd0-bef7-465a-b2e9-3ebe95c732f3" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="response" ><![CDATA[%dw 2.0
+output application/java
+---
+read(payload, "application/xml")]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<choice doc:name="Choice" doc:id="4e1f4eba-2b29-4dd1-ae14-3497ef58639a" >
+			<when expression="#[vars.response.issue != null]">
+				<ee:transform doc:name="Set Status Code (Bad Request)" doc:id="2fb9caed-cd76-49dd-964a-1688702dddbf">
+					<ee:message>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<raise-error doc:name="FHIR:VALIDATION" doc:id="3f22cec1-25f0-44dd-acd5-fde50a2d9d9b" type="FHIR:VALIDATION" description='Validation error'/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="1b8a05c8-c41e-4e9f-b4a0-1204fdb4b300" message='#["Payload is valid: " ++ write(payload, "application/json")]'/>
+			</otherwise>
+		</choice>
+	</sub-flow>
+	<sub-flow name="call_validation_api" doc:id="af231244-bee3-4add-9c47-4b90fa16ed51" >
+		<ee:transform doc:name="Build request data" doc:id="871ba1ae-b234-43f8-93bf-d6b53f1a2298" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="httpRequestVariable" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"method": "POST",
+	"url": "http://5610-2003-f3-7734-800-542-1cb1-d095-fe07.ngrok-free.app/validation",
+	"headers": {
+	},
+	"queryParams":{
+	},
+	"uriParams":{
+	}
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<http:request method="#[vars.httpRequestVariable.method]" doc:name="Request system api" doc:id="76d93e3c-6934-483b-a7a6-cfc3e28b1786" config-ref="HTTP_Request_configuration" url="#[vars.httpRequestVariable.url]">
+			<http:body ><![CDATA[#[vars.inputVar]]]></http:body>
+			<http:headers ><![CDATA[#[vars.httpRequestVariable.headers]]]></http:headers>
+			<http:uri-params ><![CDATA[#[vars.httpRequestVariable.uriParams]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[vars.httpRequestVariable.queryParams]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Detect responseType" doc:id="b69ace11-202d-4758-a3d5-e65155616251" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="responseType" ><![CDATA[%dw 2.0
+import * from dw::Runtime
+output application/dw
+---
+if(
+try(() -> read(payload,"application/json")).success == true) "JSON"
+else if ( try(() -> read(payload,"application/xml")).success == true) "XML"
+else if ( try(() -> read(payload,"text/plain")).success == true) "Text"
+else "Matched None"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</sub-flow>
+</mule>

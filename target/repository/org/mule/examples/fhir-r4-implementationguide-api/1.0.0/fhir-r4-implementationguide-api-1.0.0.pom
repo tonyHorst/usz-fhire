@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.mule.examples</groupId>
+  <artifactId>fhir-r4-implementationguide-api</artifactId>
+  <version>1.0.0</version>
+  <name>FHIR R4 ImplementationGuide API</name>
+  <description>A set of rules of how a particular interoperability or standards problem is solved. This resource is used to gather all the parts of an implementation guide into a logical whole and to publish a computable definition of all the parts.</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.mule.examples</groupId>
+      <artifactId>fhir-r4-resource-types-library</artifactId>
+      <version>1.0.0</version>
+      <type>zip</type>
+      <classifier>raml-fragment</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.mule.examples</groupId>
+      <artifactId>fhir-r4-implementationguide-library</artifactId>
+      <version>1.0.0</version>
+      <type>zip</type>
+      <classifier>raml-fragment</classifier>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <id>anypoint-exchange</id>
+      <name>Anypoint Exchange</name>
+      <url>https://maven.anypoint.mulesoft.com/api/v2/maven</url>
+    </repository>
+  </repositories>
+</project>
